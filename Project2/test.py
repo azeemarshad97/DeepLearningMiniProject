@@ -38,13 +38,15 @@ if __name__ == '__main__':
 
     print('Training model...')
     model = m.Sequential(
-    m.LinearLayer(2, 10),
+    m.LinearLayer(2, 25),
     m.ReLU(),
-    m.LinearLayer(10, 100),
+    m.LinearLayer(25, 25),
     m.Tanh(),
-    m.LinearLayer(100, 10),
+    m.LinearLayer(25, 25),
     m.Tanh(),
-    m.LinearLayer(10, 1),
+    m.LinearLayer(25, 25),
+    m.Tanh(),
+    m.LinearLayer(25, 1),
     m.Sigmoid(),
 )
 
