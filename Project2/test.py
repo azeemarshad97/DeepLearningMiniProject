@@ -1,17 +1,92 @@
 import torch
 import math
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import numpy as np # For plotting
 
+import module as m
+
+torch.set_grad_enabled(False)
+
+N_SAMPLES = 1000
 
 if __name__ == '__main__':
 
-    # Generate train and test sets of 1000 points sampled uniformly in [0,1]^2, each with a label 0 if outside the disk centered at (0.5, 0.5) of radius 1/sqrt(2*pi), and 1 inside.
-    train_set = torch.utils.data.TensorDataset(
-        torch.rand(1000, 2), 
-        torch.ones(1000)
-        )
+    print('Generating data...')
+    # Generate train
+    X_train = torch.rand(N_SAMPLES, 2)
+    y_train = torch.ones(N_SAMPLES)
+    X_test = torch.rand(N_SAMPLES, 2) 
+    y_test = torch.ones(N_SAMPLES)
 
-    print(train_set.shape)
-    print(train_set)
-    # plt.scatter(train_set[0][:,0], train_set[0][:,1])
+    # Set targets to 0 if outside disk centered at (0.5, 0.5) with radius 1/sqrt(2*pi)
+
+    y_train[
+        torch.norm(X_train - torch.tensor([0.5, 0.5]), dim=1) \
+        > 1/math.sqrt(2*math.pi)
+        ] = 0
+    y_test[
+        torch.norm(X_test - torch.tensor([0.5, 0.5]), dim=1) \
+        > 1/math.sqrt(2*math.pi)
+        ] = 0
+        
+
+    # plt.figure(figsize=(5,5))
+    # plt.scatter(X_train[:,0], X_train[:,1], c=y_train, cmap='bwr', s=8)
     # plt.show()
+
+    print('Training model...')
+    model = m.Sequential(
+    m.LinearLayer(2, 10),
+    m.Tanh(),
+    m.LinearLayer(10, 100),
+    m.Tanh(),
+    m.LinearLayer(100, 10),
+    m.Tanh(),
+    m.LinearLayer(10, 1),
+    m.Sigmoid(),
+)
+
+    optim = m.SGD(model, lr=0.01)
+
+    epochs = 100
+    batch_size = 100
+    n_batches = N_SAMPLES // batch_size
+
+    for i in range(epochs):
+        # Get random batch
+        idx = torch.randint(0, N_SAMPLES, (batch_size,))
+        for j in range(n_batches):
+            X_batch = X_train[idx]
+            y_batch = y_train[idx]
+
+            loss = optim(X_batch, y_batch.unsqueeze(1), debug=False)
+
+        print(f'Epoch {i+1}/{epochs}, Loss: {loss}', end='\r')
+
+    print('Testing model...')
+    y_pred = model(X_test)
+    y_pred = y_pred > 0.5
+
+
+    plt.figure(figsize=(5,5))
+
+    mask1 = (y_pred==1).squeeze()
+    mask0 = (y_pred==0).squeeze()
+
+    plt.scatter(X_test[:,0][mask1], X_test[:,1][mask1], s=8, label=1)
+    plt.scatter(X_test[:,0][mask0], X_test[:,1][mask0], s=8, label=0)
+
+
+    # plot unit circle
+    t = np.linspace(0, 2*np.pi, 100)
+    plt.plot(
+        0.5 + np.cos(t)/math.sqrt(2*math.pi), 
+        0.5 + np.sin(t)/math.sqrt(2*math.pi), 
+        c='k', label='unit circle', lw=1, alpha=0.5)
+
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.show()
