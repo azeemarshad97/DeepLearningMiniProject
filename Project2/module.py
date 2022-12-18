@@ -20,11 +20,12 @@ class Layer(object):
         self.n_outputs = n_outputs
         self.weights = torch.randn(n_inputs, n_outputs)
         self.bias = torch.randn(n_outputs)
+        # Gradient with respect to weights
         self.gradwrtw = torch.zeros(n_inputs, n_outputs)
+        # Gradient with respect to bias
         self.gradwrtb = torch.zeros(n_outputs)
 
     def forward(self , x: torch.Tensor) -> torch.Tensor:
-        # do forward pass with input x and weight weights
         raise NotImplementedError
 
     def backward(self , *gradwrtoutput):
