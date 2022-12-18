@@ -54,6 +54,7 @@ if __name__ == '__main__':
     batch_size = 100
     n_batches = N_SAMPLES // batch_size
 
+    print()
     for i in range(epochs):
         # Get random batch
         idx = torch.randint(0, N_SAMPLES, (batch_size,))
@@ -65,9 +66,13 @@ if __name__ == '__main__':
 
         print(f'Epoch {i+1}/{epochs}, Loss: {loss}', end='\r')
 
+    print()
     print('Testing model...')
     y_pred = model(X_test)
     y_pred = y_pred > 0.5
+
+    acc = torch.sum(y_pred.squeeze() == y_test) / N_SAMPLES
+    print(f'Accuracy: {acc}')
 
 
     plt.figure(figsize=(5,5))
