@@ -39,7 +39,7 @@ if __name__ == '__main__':
     print('Training model...')
     model = m.Sequential(
     m.LinearLayer(2, 10),
-    m.Tanh(),
+    m.ReLU(),
     m.LinearLayer(10, 100),
     m.Tanh(),
     m.LinearLayer(100, 10),

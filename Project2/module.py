@@ -7,13 +7,14 @@ class Layer(object):
 
     name = ''
 
-    def __init__(self, n_inputs: int, n_outputs: int) -> None:
+    def __init__(self, n_inputs: int, n_outputs: int, normalize: bool=True) -> None:
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         self.weights = torch.randn(n_inputs, n_outputs)
         self.bias = torch.randn(n_outputs)
         self.gradwrtw = torch.zeros(n_inputs, n_outputs)
         self.gradwrtb = torch.zeros(n_outputs)
+        self.normalize = normalize
 
 
     def forward(self , x: torch.Tensor) -> torch.Tensor:
@@ -58,11 +59,13 @@ class ReLU(Layer):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         self.input = x
-        self.output = x.max(torch.zeros_like(x))
+        # self.output = x.max(torch.zeros_like(x))
+        self.output = x
+        self.output[self.output < 0] = 0
         return self.output
 
     def backward(self, gradwrtoutput: torch.Tensor) -> torch.Tensor:
-        return gradwrtoutput * (self.input > 0).float()
+        return gradwrtoutput * (self.output > 0).float()
    
 class Tanh(Layer):
 
