@@ -1,5 +1,13 @@
+'''
+Module the our custom neural network framework.
+
+Authors:
+    - Petter Stahle
+    - Faysal Saber
+    - Azeem Arshad
+'''
+
 import torch
-import math
 
 torch.set_grad_enabled(False)
 
@@ -7,20 +15,17 @@ class Layer(object):
 
     name = ''
 
-    def __init__(self, n_inputs: int, n_outputs: int, normalize: bool=True) -> None:
+    def __init__(self, n_inputs: int, n_outputs: int) -> None:
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         self.weights = torch.randn(n_inputs, n_outputs)
         self.bias = torch.randn(n_outputs)
         self.gradwrtw = torch.zeros(n_inputs, n_outputs)
         self.gradwrtb = torch.zeros(n_outputs)
-        self.normalize = normalize
-
 
     def forward(self , x: torch.Tensor) -> torch.Tensor:
         # do forward pass with input x and weight weights
         raise NotImplementedError
-
 
     def backward(self , *gradwrtoutput):
         raise NotImplementedError
@@ -209,31 +214,3 @@ class SGD(Optimizer):
         for layer in self.model.layers:
             layer.weights -= self.lr * layer.gradwrtw.T
             layer.bias -= self.lr * layer.gradwrtb
-
-
-
-
-
-
-
-
-
-# class Adam(Optimizer):
-    
-#     def __init__(self, model: Sequential, lr: float, betas: tuple=(0.9, 0.999), eps: float=1e-8):
-#         super().__init__(model, lr)
-#         self.betas = betas
-#         self.eps = eps
-#         self.m = []
-#         self.v = []
-#         for layer in self.model.layers:
-#             self.m.append(torch.zeros_like(layer.weights))
-#             self.v.append(torch.zeros_like(layer.weights))
-
-#     def step(self):
-#         for i, layer in enumerate(self.model.layers):
-#             self.m[i] = self.betas[0] * self.m[i] + (1 - self.betas[0]) * layer.gradient
-#             self.v[i] = self.betas[1] * self.v[i] + (1 - self.betas[1]) * layer.gradient ** 2
-#             m_hat = self.m[i] / (1 - self.betas[0])
-#             v_hat = self.v[i] / (1 - self.betas[1])
-#             layer.weights -= self.lr * m_hat / (v_hat.sqrt() + self.eps)
