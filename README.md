@@ -14,3 +14,8 @@ This contains the code for our custom mini deeplearning framework.
 
 To test the framework, run the code
 `python Project2/test.py`
+
+## Credits
+Azeem Arshad
+Petter Stahle
+Faysal Saber
